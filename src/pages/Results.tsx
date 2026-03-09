@@ -188,7 +188,7 @@ const Results = () => {
               </p>
               <Link to="/pricing">
                 <Button size="lg" className="bg-gradient-fire text-primary-foreground shadow-fire hover:opacity-90">
-                  Upgrade to Pro — $9/mo
+                  Upgrade to Pro — $5/mo
                 </Button>
               </Link>
             </motion.div>

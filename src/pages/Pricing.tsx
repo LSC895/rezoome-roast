@@ -8,8 +8,8 @@ const plans = [
     name: "Free",
     price: "$0",
     period: "forever",
-    desc: "Dip your toes in the fire.",
-    cta: "Start Free",
+    desc: "Dip your toes in the fire bestie. 🫡",
+    cta: "Start Free ✨",
     href: "/upload",
     featured: false,
     features: [
@@ -23,10 +23,10 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "$9",
+    price: "$5",
     period: "/month",
-    desc: "Maximum roasting power.",
-    cta: "Go Pro 🔥",
+    desc: "Maximum roasting power. Bussin fr fr. 🔥",
+    cta: "Go Pro 💀",
     href: "/upload",
     featured: true,
     features: [
@@ -67,13 +67,14 @@ const Pricing = () => {
           >
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 mb-6 text-sm text-primary">
               <Zap className="h-4 w-4" />
-              Simple Pricing
+              no cap pricing 🫡
             </div>
             <h1 className="text-4xl md:text-5xl font-bold font-display mb-4">
               Choose your
               <span className="text-gradient-fire"> heat level</span>
+              <span className="ml-2">🌶️</span>
             </h1>
-            <p className="text-lg text-muted-foreground">Start free. Upgrade when you're addicted.</p>
+            <p className="text-lg text-muted-foreground">Start free. Upgrade when you're addicted. no judgment 💅</p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
@@ -141,7 +142,7 @@ const Pricing = () => {
             transition={{ delay: 0.5 }}
             className="text-center text-sm text-muted-foreground mt-12"
           >
-            Cancel anytime. No contracts. No BS. Just roasts.
+            Cancel anytime. No contracts. No BS. Just vibes and roasts. 🫡
           </motion.p>
         </div>
       </div>
