@@ -78,6 +78,14 @@ const Index = () => {
             <Link to="/pricing">
               <Button variant="ghost" size="sm">Pricing</Button>
             </Link>
+            {user && (
+              <Link to="/history">
+                <Button variant="ghost" size="sm">
+                  <History className="h-4 w-4 mr-1" />
+                  History
+                </Button>
+              </Link>
+            )}
             <Link to="/upload">
               <Button size="sm" className="bg-gradient-fire text-primary-foreground shadow-neon hover:opacity-90">
                 Roast Me 💀

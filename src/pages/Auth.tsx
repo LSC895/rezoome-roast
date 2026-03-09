@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Flame, Loader2, Mail, Lock, User, Gift } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
   const { user, loading, signIn, signUp } = useAuth();
@@ -22,9 +21,10 @@ const Auth = () => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    // If referral code present, default to signup
+    // If referral code present, default to signup and store it
     if (referralCode) {
       setIsSignUp(true);
+      localStorage.setItem("rezoome_referral", referralCode);
     }
   }, [referralCode]);
 
@@ -36,45 +36,12 @@ const Auth = () => {
     setSubmitting(true);
 
     if (isSignUp) {
-      const { error, data } = await signUp(email, password, displayName);
+      const { error } = await signUp(email, password, displayName);
       setSubmitting(false);
 
       if (error) {
         toast({ title: "Oops 💀", description: error.message, variant: "destructive" });
       } else {
-        // If signup successful and there's a referral code, process it
-        if (referralCode && data?.user) {
-          try {
-            // Find referrer by code
-            const { data: referrerProfile } = await supabase
-              .from("profiles")
-              .select("user_id")
-              .eq("referral_code", referralCode)
-              .single();
-
-            if (referrerProfile) {
-              // Create referral record
-              await supabase.from("referrals").insert({
-                referrer_id: referrerProfile.user_id,
-                referred_id: data.user.id,
-              });
-
-              // Add bonus roasts to referrer
-              await supabase.rpc("increment_bonus_roasts", { 
-                target_user_id: referrerProfile.user_id, 
-                amount: 3 
-              }).catch(() => {
-                // Fallback: update directly
-                supabase
-                  .from("profiles")
-                  .update({ bonus_roasts: 3 })
-                  .eq("user_id", data.user.id);
-              });
-            }
-          } catch (err) {
-            console.error("Referral processing error:", err);
-          }
-        }
         toast({ title: "Check your email 📧", description: "We sent you a confirmation link bestie!" });
       }
     } else {
