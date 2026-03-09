@@ -93,7 +93,12 @@ const Upload = () => {
 
       clearInterval(interval);
 
-      if (fnError) throw new Error(fnError.message);
+      if (fnError) {
+        const msg = fnError.message?.includes("non-2xx")
+          ? result?.error || fnError.message
+          : fnError.message;
+        throw new Error(msg);
+      }
 
       // 4. Navigate to results
       navigate("/results", {
