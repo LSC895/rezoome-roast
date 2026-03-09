@@ -1,1 +1,4 @@
 project_id = "wjjwnrelkuapmsjagydf"
+
+[functions.roast-resume]
+verify_jwt = false
