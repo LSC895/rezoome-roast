@@ -67,13 +67,14 @@ const Pricing = () => {
           >
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 mb-6 text-sm text-primary">
               <Zap className="h-4 w-4" />
-              Simple Pricing
+              no cap pricing 🫡
             </div>
             <h1 className="text-4xl md:text-5xl font-bold font-display mb-4">
               Choose your
               <span className="text-gradient-fire"> heat level</span>
+              <span className="ml-2">🌶️</span>
             </h1>
-            <p className="text-lg text-muted-foreground">Start free. Upgrade when you're addicted.</p>
+            <p className="text-lg text-muted-foreground">Start free. Upgrade when you're addicted. no judgment 💅</p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
