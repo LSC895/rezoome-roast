@@ -262,12 +262,41 @@ const Upload = () => {
             </div>
           </motion.div>
 
-          {/* Tone Selector */}
+          {/* Language Selector */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="mt-10"
+          >
+            <h2 className="text-lg font-bold font-display mb-1 text-center">Pick your language 🌍</h2>
+            <p className="text-center text-xs text-muted-foreground mb-4 font-mono">roasts hit different in every tongue 👅</p>
+            <div className="grid grid-cols-4 gap-3">
+              {languages.map((lang) => (
+                <motion.button
+                  key={lang.id}
+                  onClick={() => setLanguage(lang.id)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                  className={`relative rounded-xl border p-3 text-center transition-all duration-200 ${
+                    language === lang.id
+                      ? "border-primary bg-primary/10 shadow-neon"
+                      : "border-border/50 bg-card hover:border-primary/20"
+                  }`}
+                >
+                  <div className="text-2xl mb-1">{lang.emoji}</div>
+                  <div className="font-bold text-xs">{lang.label}</div>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Tone Selector */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-8"
           >
             <h2 className="text-lg font-bold font-display mb-1 text-center">Pick your vibe 🎭</h2>
             <p className="text-center text-xs text-muted-foreground mb-4 font-mono">choose wisely... or don't 🤷</p>
