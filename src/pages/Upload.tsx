@@ -10,6 +10,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 type RoastTone = "brutal" | "balanced" | "gentle";
+type RoastLanguage = "english" | "hindi" | "hinglish" | "spanish" | "french" | "german" | "japanese" | "portuguese";
+
+const languages: { id: RoastLanguage; label: string; emoji: string }[] = [
+  { id: "english", label: "English", emoji: "🇬🇧" },
+  { id: "hindi", label: "हिंदी", emoji: "🇮🇳" },
+  { id: "hinglish", label: "Hinglish", emoji: "🔥" },
+  { id: "spanish", label: "Español", emoji: "🇪🇸" },
+  { id: "french", label: "Français", emoji: "🇫🇷" },
+  { id: "german", label: "Deutsch", emoji: "🇩🇪" },
+  { id: "japanese", label: "日本語", emoji: "🇯🇵" },
+  { id: "portuguese", label: "Português", emoji: "🇧🇷" },
+];
 
 const tones: { id: RoastTone; label: string; emoji: string; desc: string }[] = [
   { id: "brutal", label: "Brutal", emoji: "💀", desc: "No mercy. Pure devastation." },
