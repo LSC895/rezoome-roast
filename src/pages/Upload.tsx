@@ -331,7 +331,7 @@ const Upload = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.4 }}
             className="mt-10 text-center"
           >
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
