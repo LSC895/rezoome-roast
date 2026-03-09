@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Flame, Zap, Shield, ArrowRight, Star, Skull, Sparkles, Brain } from "lucide-react";
+import { Flame, Zap, Shield, ArrowRight, Star, Skull, Sparkles, History } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const memes = [
   { text: "HR after seeing your resume:", img: "😐📄➡️🗑️" },
