@@ -34,6 +34,8 @@ const stats = [
 const floatingEmojis = ["🔥", "💀", "😭", "🗑️", "✨", "💅", "🫠", "😤"];
 
 const Index = () => {
+  const { user } = useAuth();
+  
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       {/* Floating background emojis */}
