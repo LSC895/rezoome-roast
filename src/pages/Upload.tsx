@@ -5,6 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Flame, Upload as UploadIcon, FileText, X, Loader2, Skull } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 type RoastTone = "brutal" | "balanced" | "gentle";
 
@@ -23,6 +26,8 @@ const loadingTexts = [
 
 const Upload = () => {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [tone, setTone] = useState<RoastTone>("balanced");
   const [isLoading, setIsLoading] = useState(false);
@@ -43,17 +48,75 @@ const Upload = () => {
 
   const handleRoast = async () => {
     if (!file) return;
+
+    // Require auth
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+
     setIsLoading(true);
     setLoadingIdx(0);
 
     const interval = setInterval(() => {
       setLoadingIdx((prev) => Math.min(prev + 1, loadingTexts.length - 1));
-    }, 800);
+    }, 2000);
 
-    setTimeout(() => {
+    try {
+      // 1. Upload PDF to storage
+      const filePath = `${user.id}/${Date.now()}_${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("resumes")
+        .upload(filePath, file);
+
+      if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
+
+      // 2. Create roast record
+      const { data: roast, error: roastError } = await supabase
+        .from("roasts")
+        .insert({
+          user_id: user.id,
+          file_name: file.name,
+          file_path: filePath,
+          tone,
+          status: "pending",
+        })
+        .select()
+        .single();
+
+      if (roastError || !roast) throw new Error("Failed to create roast record");
+
+      // 3. Call edge function
+      const { data: result, error: fnError } = await supabase.functions.invoke("roast-resume", {
+        body: { roastId: roast.id },
+      });
+
       clearInterval(interval);
-      navigate("/results", { state: { fileName: file.name, tone } });
-    }, 3000);
+
+      if (fnError) throw new Error(fnError.message);
+
+      // 4. Navigate to results
+      navigate("/results", {
+        state: {
+          roastId: roast.id,
+          fileName: file.name,
+          tone,
+          roastText: result.roast_text,
+          fixSuggestions: result.fix_suggestions,
+          score: result.score,
+        },
+      });
+    } catch (error: any) {
+      clearInterval(interval);
+      console.error("Roast error:", error);
+      toast({
+        title: "Roast failed 😵",
+        description: error.message || "Something went wrong. Try again bestie.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -65,9 +128,16 @@ const Upload = () => {
             <Flame className="h-7 w-7 text-primary" />
             <span className="text-xl font-bold font-display tracking-tight">rezoome</span>
           </Link>
-          <Link to="/pricing">
-            <Button variant="ghost" size="sm">Pricing</Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/pricing">
+              <Button variant="ghost" size="sm">Pricing</Button>
+            </Link>
+            {!authLoading && !user && (
+              <Link to="/auth">
+                <Button variant="outline" size="sm">Sign In</Button>
+              </Link>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -235,14 +305,14 @@ const Upload = () => {
                 ) : (
                   <>
                     <Skull className="h-5 w-5 mr-2" />
-                    Roast Me 🔥
+                    {user ? "Roast Me 🔥" : "Sign in & Roast 🔥"}
                   </>
                 )}
               </Button>
             </motion.div>
             {!isLoading && (
               <p className="text-xs text-muted-foreground/50 mt-3 font-mono">
-                we promise to only hurt your feelings a little 🤏
+                {user ? "we promise to only hurt your feelings a little 🤏" : "you'll need to sign in first bestie 🫡"}
               </p>
             )}
           </motion.div>
