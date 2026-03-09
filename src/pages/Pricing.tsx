@@ -23,10 +23,10 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "$9",
+    price: "$5",
     period: "/month",
-    desc: "Maximum roasting power.",
-    cta: "Go Pro 🔥",
+    desc: "Maximum roasting power. Bussin fr fr. 🔥",
+    cta: "Go Pro 💀",
     href: "/upload",
     featured: true,
     features: [
