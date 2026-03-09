@@ -92,6 +92,7 @@ const Upload = () => {
           file_name: file.name,
           file_path: filePath,
           tone,
+          language,
           status: "pending",
         })
         .select()
