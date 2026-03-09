@@ -142,7 +142,7 @@ const Pricing = () => {
             transition={{ delay: 0.5 }}
             className="text-center text-sm text-muted-foreground mt-12"
           >
-            Cancel anytime. No contracts. No BS. Just roasts.
+            Cancel anytime. No contracts. No BS. Just vibes and roasts. 🫡
           </motion.p>
         </div>
       </div>
