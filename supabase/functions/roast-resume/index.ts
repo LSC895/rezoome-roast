@@ -24,7 +24,7 @@ serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY")!;
+    const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
 
@@ -136,10 +136,20 @@ serve(async (req) => {
       const errText = await geminiResponse.text();
       console.error("Gemini error:", geminiResponse.status, errText);
       await serviceClient.from("roasts").update({ status: "failed" }).eq("id", roastId);
-      return new Response(JSON.stringify({ error: "AI processing failed" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+
+      const isQuotaError = geminiResponse.status === 429;
+      return new Response(
+        JSON.stringify({
+          error: isQuotaError
+            ? "Gemini quota exceeded. Add billing or wait for quota reset, then retry."
+            : "AI processing failed",
+          provider_status: geminiResponse.status,
+        }),
+        {
+          status: isQuotaError ? 429 : 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     const geminiData = await geminiResponse.json();
