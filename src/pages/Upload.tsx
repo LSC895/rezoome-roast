@@ -10,6 +10,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 type RoastTone = "brutal" | "balanced" | "gentle";
+type RoastLanguage = "english" | "hindi" | "hinglish" | "spanish" | "french" | "german" | "japanese" | "portuguese";
+
+const languages: { id: RoastLanguage; label: string; emoji: string }[] = [
+  { id: "english", label: "English", emoji: "🇬🇧" },
+  { id: "hindi", label: "हिंदी", emoji: "🇮🇳" },
+  { id: "hinglish", label: "Hinglish", emoji: "🔥" },
+  { id: "spanish", label: "Español", emoji: "🇪🇸" },
+  { id: "french", label: "Français", emoji: "🇫🇷" },
+  { id: "german", label: "Deutsch", emoji: "🇩🇪" },
+  { id: "japanese", label: "日本語", emoji: "🇯🇵" },
+  { id: "portuguese", label: "Português", emoji: "🇧🇷" },
+];
 
 const tones: { id: RoastTone; label: string; emoji: string; desc: string }[] = [
   { id: "brutal", label: "Brutal", emoji: "💀", desc: "No mercy. Pure devastation." },
@@ -30,6 +42,7 @@ const Upload = () => {
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [tone, setTone] = useState<RoastTone>("balanced");
+  const [language, setLanguage] = useState<RoastLanguage>("english");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingIdx, setLoadingIdx] = useState(0);
 
@@ -79,6 +92,7 @@ const Upload = () => {
           file_name: file.name,
           file_path: filePath,
           tone,
+          language,
           status: "pending",
         })
         .select()
@@ -106,6 +120,7 @@ const Upload = () => {
           roastId: roast.id,
           fileName: file.name,
           tone,
+          language,
           roastText: result.roast_text,
           fixSuggestions: result.fix_suggestions,
           score: result.score,
@@ -247,12 +262,41 @@ const Upload = () => {
             </div>
           </motion.div>
 
-          {/* Tone Selector */}
+          {/* Language Selector */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
             className="mt-10"
+          >
+            <h2 className="text-lg font-bold font-display mb-1 text-center">Pick your language 🌍</h2>
+            <p className="text-center text-xs text-muted-foreground mb-4 font-mono">roasts hit different in every tongue 👅</p>
+            <div className="grid grid-cols-4 gap-3">
+              {languages.map((lang) => (
+                <motion.button
+                  key={lang.id}
+                  onClick={() => setLanguage(lang.id)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                  className={`relative rounded-xl border p-3 text-center transition-all duration-200 ${
+                    language === lang.id
+                      ? "border-primary bg-primary/10 shadow-neon"
+                      : "border-border/50 bg-card hover:border-primary/20"
+                  }`}
+                >
+                  <div className="text-2xl mb-1">{lang.emoji}</div>
+                  <div className="font-bold text-xs">{lang.label}</div>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Tone Selector */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="mt-8"
           >
             <h2 className="text-lg font-bold font-display mb-1 text-center">Pick your vibe 🎭</h2>
             <p className="text-center text-xs text-muted-foreground mb-4 font-mono">choose wisely... or don't 🤷</p>
@@ -287,7 +331,7 @@ const Upload = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.4 }}
             className="mt-10 text-center"
           >
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
