@@ -57,6 +57,7 @@ export type Database = {
           file_path: string
           fix_suggestions: Json | null
           id: string
+          language: string
           roast_text: string | null
           score: number | null
           status: string
@@ -70,6 +71,7 @@ export type Database = {
           file_path: string
           fix_suggestions?: Json | null
           id?: string
+          language?: string
           roast_text?: string | null
           score?: number | null
           status?: string
@@ -83,6 +85,7 @@ export type Database = {
           file_path?: string
           fix_suggestions?: Json | null
           id?: string
+          language?: string
           roast_text?: string | null
           score?: number | null
           status?: string
