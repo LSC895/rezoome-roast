@@ -1,16 +1,30 @@
+import { useState, useRef } from "react";
 import { useLocation, Link, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Flame, Lightbulb, Lock, ArrowLeft, RotateCcw } from "lucide-react";
+import { Flame, Lightbulb, Lock, ArrowLeft, RotateCcw, Download, Share2, Copy, Check, Twitter } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import html2canvas from "html2canvas";
+import ScoreGauge from "@/components/ScoreGauge";
+import ShareCard from "@/components/ShareCard";
 
 const Results = () => {
   const location = useLocation();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const shareCardRef = useRef<HTMLDivElement>(null);
+  const [shareToken, setShareToken] = useState<string | null>(null);
+  const [generatingToken, setGeneratingToken] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
   const state = location.state as {
     roastId?: string;
     fileName?: string;
     tone?: string;
+    language?: string;
     roastText?: string;
     fixSuggestions?: Array<{ text: string; free: boolean }>;
     score?: number;
@@ -22,6 +36,78 @@ const Results = () => {
 
   const roastText = state.roastText;
   const fixes = state.fixSuggestions || [];
+  const toneEmoji = state.tone === "brutal" ? "💀" : state.tone === "gentle" ? "🫶" : "⚖️";
+  const languageLabel = state.language ? state.language.charAt(0).toUpperCase() + state.language.slice(1) : "English";
+
+  // Get first sentence for share card snippet
+  const roastSnippet = roastText.split("\n").find((line: string) => line.trim() && !line.startsWith("**"))?.slice(0, 150) || roastText.slice(0, 150);
+
+  const generateShareToken = async () => {
+    if (!state.roastId || !user) return;
+    
+    setGeneratingToken(true);
+    try {
+      // Check if token already exists
+      const { data: existing } = await supabase
+        .from("roasts")
+        .select("share_token")
+        .eq("id", state.roastId)
+        .single();
+
+      if (existing?.share_token) {
+        setShareToken(existing.share_token);
+      } else {
+        // Generate new token
+        const token = Math.random().toString(36).substring(2, 10);
+        const { error } = await supabase
+          .from("roasts")
+          .update({ share_token: token })
+          .eq("id", state.roastId);
+
+        if (error) throw error;
+        setShareToken(token);
+      }
+    } catch (err) {
+      toast({ title: "Oops 💀", description: "Couldn't generate share link", variant: "destructive" });
+    } finally {
+      setGeneratingToken(false);
+    }
+  };
+
+  const copyShareLink = () => {
+    if (!shareToken) return;
+    const link = `${window.location.origin}/roast/${shareToken}`;
+    navigator.clipboard.writeText(link);
+    setCopiedLink(true);
+    toast({ title: "Copied! 🔥", description: "Share it with your besties" });
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const shareOnTwitter = () => {
+    const text = `Just got my resume roasted by AI 💀🔥 Scored ${state.score || "?"}/10. Get yours at`;
+    const url = shareToken ? `${window.location.origin}/roast/${shareToken}` : window.location.origin;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}&hashtags=GetRoasted,rezoome`, "_blank");
+  };
+
+  const downloadScoreCard = async () => {
+    if (!shareCardRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(shareCardRef.current, {
+        backgroundColor: null,
+        scale: 2,
+      });
+      const link = document.createElement("a");
+      link.download = `rezoome-score-${state.score || 0}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      toast({ title: "Downloaded! 📥", description: "Now flex it on socials" });
+    } catch (err) {
+      toast({ title: "Download failed 😵", description: "Try again bestie", variant: "destructive" });
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -32,12 +118,19 @@ const Results = () => {
             <Flame className="h-7 w-7 text-primary" />
             <span className="text-xl font-bold font-display tracking-tight">rezoome</span>
           </Link>
-          <Link to="/upload">
-            <Button variant="ghost" size="sm">
-              <RotateCcw className="h-4 w-4 mr-1" />
-              New Roast
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            {user && (
+              <Link to="/history">
+                <Button variant="ghost" size="sm">History</Button>
+              </Link>
+            )}
+            <Link to="/upload">
+              <Button variant="ghost" size="sm">
+                <RotateCcw className="h-4 w-4 mr-1" />
+                New Roast
+              </Button>
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -57,12 +150,51 @@ const Results = () => {
               <Flame className="h-8 w-8 text-primary animate-flame-flicker" />
               <h1 className="text-3xl md:text-4xl font-bold font-display">Your Roast is Served</h1>
             </div>
-            <p className="text-muted-foreground">
-              <span className="font-mono text-primary">{state.fileName}</span> — {state.tone} mode
-              {state.score !== null && state.score !== undefined && (
-                <span className="ml-2 font-bold text-foreground">• Score: {state.score}/10</span>
-              )}
-            </p>
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="font-mono text-primary">{state.fileName}</span>
+              <span className="text-sm bg-secondary px-2 py-0.5 rounded-full">{toneEmoji} {state.tone}</span>
+              <span className="text-sm bg-secondary px-2 py-0.5 rounded-full">🌍 {languageLabel}</span>
+            </div>
+          </motion.div>
+
+          {/* Score Gauge */}
+          {state.score !== null && state.score !== undefined && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="flex justify-center mb-10"
+            >
+              <ScoreGauge score={state.score} size={140} />
+            </motion.div>
+          )}
+
+          {/* Share Actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="flex flex-wrap gap-3 justify-center mb-10"
+          >
+            {!shareToken ? (
+              <Button onClick={generateShareToken} variant="outline" disabled={generatingToken || !user}>
+                <Share2 className="h-4 w-4 mr-2" />
+                {generatingToken ? "Generating..." : "Get Share Link"}
+              </Button>
+            ) : (
+              <Button onClick={copyShareLink} variant="outline">
+                {copiedLink ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                {copiedLink ? "Copied!" : "Copy Link"}
+              </Button>
+            )}
+            <Button onClick={shareOnTwitter} variant="outline">
+              <Twitter className="h-4 w-4 mr-2" />
+              Share on X
+            </Button>
+            <Button onClick={downloadScoreCard} variant="outline" disabled={downloading}>
+              <Download className="h-4 w-4 mr-2" />
+              {downloading ? "Creating..." : "Download Card"}
+            </Button>
           </motion.div>
 
           {/* Roast */}
@@ -159,6 +291,18 @@ const Results = () => {
             </motion.div>
           )}
         </div>
+      </div>
+
+      {/* Hidden Share Card for export */}
+      <div className="fixed -left-[9999px] -top-[9999px]">
+        <ShareCard
+          ref={shareCardRef}
+          score={state.score || 0}
+          tone={state.tone || "balanced"}
+          language={state.language || "english"}
+          fileName={state.fileName || "resume.pdf"}
+          roastSnippet={roastSnippet}
+        />
       </div>
     </div>
   );

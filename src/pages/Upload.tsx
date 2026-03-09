@@ -1,10 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Flame, Upload as UploadIcon, FileText, X, Loader2, Skull } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Flame, Upload as UploadIcon, FileText, X, Loader2, Skull, RotateCcw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -29,12 +28,57 @@ const tones: { id: RoastTone; label: string; emoji: string; desc: string }[] = [
   { id: "gentle", label: "Gentle", emoji: "🫶", desc: "Kind nudges, soft truths." },
 ];
 
-const loadingTexts = [
-  "Reading your resume... 👀",
-  "Finding all the red flags... 🚩",
-  "Preparing emotional damage... 💀",
-  "Almost done roasting... 🔥",
-];
+// Language-specific loading messages
+const loadingMessages: Record<RoastLanguage, string[]> = {
+  english: [
+    "Reading your resume... 👀",
+    "Finding all the red flags... 🚩",
+    "Preparing emotional damage... 💀",
+    "Almost done roasting... 🔥",
+  ],
+  hindi: [
+    "भाई, पढ़ रहे हैं... 👀",
+    "सब गलतियां ढूंढ रहे हैं... 🚩",
+    "रोस्ट तैयार हो रहा है... 💀",
+    "बस हो गया लगभग... 🔥",
+  ],
+  hinglish: [
+    "Resume padh rahe hain bro... 👀",
+    "Saari red flags mil gayi... 🚩",
+    "Emotional damage loading... 💀",
+    "Almost done bestie... 🔥",
+  ],
+  spanish: [
+    "Leyendo tu currículum... 👀",
+    "Encontrando todas las señales... 🚩",
+    "Preparando el daño emocional... 💀",
+    "Casi listo... 🔥",
+  ],
+  french: [
+    "Lecture de votre CV... 👀",
+    "Recherche des signaux d'alarme... 🚩",
+    "Préparation du dommage émotionnel... 💀",
+    "Presque fini... 🔥",
+  ],
+  german: [
+    "Lese deinen Lebenslauf... 👀",
+    "Finde alle Red Flags... 🚩",
+    "Bereite emotionalen Schaden vor... 💀",
+    "Fast fertig... 🔥",
+  ],
+  japanese: [
+    "履歴書を読んでいます... 👀",
+    "問題点を探しています... 🚩",
+    "精神的ダメージを準備中... 💀",
+    "もうすぐ完了... 🔥",
+  ],
+  portuguese: [
+    "Lendo seu currículo... 👀",
+    "Encontrando todos os problemas... 🚩",
+    "Preparando o dano emocional... 💀",
+    "Quase pronto... 🔥",
+  ],
+};
 
 const Upload = () => {
   const navigate = useNavigate();
@@ -45,10 +89,12 @@ const Upload = () => {
   const [language, setLanguage] = useState<RoastLanguage>("english");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingIdx, setLoadingIdx] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
       setFile(acceptedFiles[0]);
+      setError(null);
     }
   }, []);
 
@@ -70,9 +116,11 @@ const Upload = () => {
 
     setIsLoading(true);
     setLoadingIdx(0);
+    setError(null);
 
+    const messages = loadingMessages[language];
     const interval = setInterval(() => {
-      setLoadingIdx((prev) => Math.min(prev + 1, loadingTexts.length - 1));
+      setLoadingIdx((prev) => Math.min(prev + 1, messages.length - 1));
     }, 2000);
 
     try {
@@ -126,18 +174,26 @@ const Upload = () => {
           score: result.score,
         },
       });
-    } catch (error: any) {
+    } catch (err: any) {
       clearInterval(interval);
-      console.error("Roast error:", error);
+      console.error("Roast error:", err);
+      setError(err.message || "Something went wrong. Try again bestie.");
       toast({
         title: "Roast failed 😵",
-        description: error.message || "Something went wrong. Try again bestie.",
+        description: err.message || "Something went wrong. Try again bestie.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleRetry = () => {
+    setError(null);
+    handleRoast();
+  };
+
+  const currentLoadingMessages = loadingMessages[language];
 
   return (
     <div className="min-h-screen bg-background">
@@ -152,6 +208,11 @@ const Upload = () => {
             <Link to="/pricing">
               <Button variant="ghost" size="sm">Pricing</Button>
             </Link>
+            {!authLoading && user && (
+              <Link to="/history">
+                <Button variant="ghost" size="sm">History</Button>
+              </Link>
+            )}
             {!authLoading && !user && (
               <Link to="/auth">
                 <Button variant="outline" size="sm">Sign In</Button>
@@ -327,6 +388,21 @@ const Upload = () => {
             </div>
           </motion.div>
 
+          {/* Error + Retry */}
+          {error && !isLoading && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-8 rounded-xl border border-destructive/50 bg-destructive/10 p-4 text-center"
+            >
+              <p className="text-sm text-destructive mb-3">💀 {error}</p>
+              <Button onClick={handleRetry} variant="outline" size="sm">
+                <RotateCcw className="h-4 w-4 mr-1" />
+                Try Again
+              </Button>
+            </motion.div>
+          )}
+
           {/* Submit */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -349,7 +425,7 @@ const Upload = () => {
                     animate={{ opacity: 1, y: 0 }}
                   >
                     <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    {loadingTexts[loadingIdx]}
+                    {currentLoadingMessages[loadingIdx]}
                   </motion.span>
                 ) : (
                   <>
@@ -359,7 +435,7 @@ const Upload = () => {
                 )}
               </Button>
             </motion.div>
-            {!isLoading && (
+            {!isLoading && !error && (
               <p className="text-xs text-muted-foreground/50 mt-3 font-mono">
                 {user ? "we promise to only hurt your feelings a little 🤏" : "you'll need to sign in first bestie 🫡"}
               </p>
