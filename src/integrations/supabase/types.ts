@@ -16,37 +16,64 @@ export type Database = {
     Tables: {
       profiles: {
         Row: {
+          bonus_roasts: number
           created_at: string
           display_name: string | null
           email: string | null
           id: string
           is_pro: boolean
           last_roast_date: string | null
+          referral_code: string | null
           roasts_today: number
           updated_at: string
           user_id: string
         }
         Insert: {
+          bonus_roasts?: number
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
           is_pro?: boolean
           last_roast_date?: string | null
+          referral_code?: string | null
           roasts_today?: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          bonus_roasts?: number
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
           is_pro?: boolean
           last_roast_date?: string | null
+          referral_code?: string | null
           roasts_today?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referred_id: string
+          referrer_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referred_id: string
+          referrer_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referred_id?: string
+          referrer_id?: string
         }
         Relationships: []
       }
@@ -60,6 +87,7 @@ export type Database = {
           language: string
           roast_text: string | null
           score: number | null
+          share_token: string | null
           status: string
           tone: string
           updated_at: string
@@ -74,6 +102,7 @@ export type Database = {
           language?: string
           roast_text?: string | null
           score?: number | null
+          share_token?: string | null
           status?: string
           tone: string
           updated_at?: string
@@ -88,6 +117,7 @@ export type Database = {
           language?: string
           roast_text?: string | null
           score?: number | null
+          share_token?: string | null
           status?: string
           tone?: string
           updated_at?: string
