@@ -155,6 +155,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      process_referral: {
+        Args: { referral_code_input: string; referred_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
