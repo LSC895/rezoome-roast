@@ -122,28 +122,48 @@ serve(async (req) => {
       },
     };
 
-    // Call Gemini API
-    const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(geminiPayload),
-      }
-    );
+    // Call Gemini API with model fallback
+    let geminiResponse: Response | null = null;
+    let lastErrorText = "";
+    let lastStatus = 500;
 
-    if (!geminiResponse.ok) {
-      const errText = await geminiResponse.text();
-      console.error("Gemini error:", geminiResponse.status, errText);
+    for (const model of GEMINI_MODELS) {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(geminiPayload),
+        }
+      );
+
+      if (response.ok) {
+        geminiResponse = response;
+        break;
+      }
+
+      const errText = await response.text();
+      console.error(`Gemini error on ${model}:`, response.status, errText);
+      lastErrorText = errText;
+      lastStatus = response.status;
+
+      // If it's not quota/rate related, stop trying other models
+      if (![429, 402, 403, 500, 502, 503, 504].includes(response.status)) {
+        break;
+      }
+    }
+
+    if (!geminiResponse) {
       await serviceClient.from("roasts").update({ status: "failed" }).eq("id", roastId);
 
-      const isQuotaError = geminiResponse.status === 429;
+      const isQuotaError = lastStatus === 429;
       return new Response(
         JSON.stringify({
           error: isQuotaError
-            ? "Gemini quota exceeded. Add billing or wait for quota reset, then retry."
+            ? "Gemini quota exceeded across available models. Enable billing or retry later."
             : "AI processing failed",
-          provider_status: geminiResponse.status,
+          provider_status: lastStatus,
+          details: lastErrorText.slice(0, 500),
         }),
         {
           status: isQuotaError ? 429 : 500,
