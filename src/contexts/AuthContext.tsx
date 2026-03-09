@@ -18,11 +18,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Process referral when user logs in
+  const processStoredReferral = async (userId: string) => {
+    const referralCode = localStorage.getItem("rezoome_referral");
+    if (!referralCode) return;
+
+    try {
+      // Call the process_referral function
+      const { error } = await supabase.rpc("process_referral", {
+        referral_code_input: referralCode,
+        referred_user_id: userId,
+      });
+
+      // Clear the stored referral code regardless of result
+      localStorage.removeItem("rezoome_referral");
+
+      if (!error) {
+        console.log("Referral processed successfully! 🎁");
+      }
+    } catch (err) {
+      console.error("Error processing referral:", err);
+      localStorage.removeItem("rezoome_referral");
+    }
+  };
+
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Process referral on sign in
+      if (_event === "SIGNED_IN" && session?.user) {
+        // Small delay to ensure profile is created first
+        setTimeout(() => processStoredReferral(session.user.id), 1000);
+      }
     });
 
     supabase.auth.getSession().then(({ data: { session } }) => {

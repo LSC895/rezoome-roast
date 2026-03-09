@@ -9,6 +9,8 @@ import Upload from "./pages/Upload";
 import Results from "./pages/Results";
 import Pricing from "./pages/Pricing";
 import Auth from "./pages/Auth";
+import History from "./pages/History";
+import SharedRoast from "./pages/SharedRoast";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="/upload" element={<Upload />} />
             <Route path="/results" element={<Results />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/roast/:shareToken" element={<SharedRoast />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

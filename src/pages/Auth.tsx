@@ -1,21 +1,32 @@
-import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Flame, Loader2, Mail, Lock, User } from "lucide-react";
+import { Flame, Loader2, Mail, Lock, User, Gift } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 const Auth = () => {
   const { user, loading, signIn, signUp } = useAuth();
   const { toast } = useToast();
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get("ref");
+
+  const [isSignUp, setIsSignUp] = useState(!!referralCode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    // If referral code present, default to signup and store it
+    if (referralCode) {
+      setIsSignUp(true);
+      localStorage.setItem("rezoome_referral", referralCode);
+    }
+  }, [referralCode]);
 
   if (loading) return null;
   if (user) return <Navigate to="/upload" replace />;
@@ -24,16 +35,22 @@ const Auth = () => {
     e.preventDefault();
     setSubmitting(true);
 
-    const { error } = isSignUp
-      ? await signUp(email, password, displayName)
-      : await signIn(email, password);
+    if (isSignUp) {
+      const { error } = await signUp(email, password, displayName);
+      setSubmitting(false);
 
-    setSubmitting(false);
+      if (error) {
+        toast({ title: "Oops 💀", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Check your email 📧", description: "We sent you a confirmation link bestie!" });
+      }
+    } else {
+      const { error } = await signIn(email, password);
+      setSubmitting(false);
 
-    if (error) {
-      toast({ title: "Oops 💀", description: error.message, variant: "destructive" });
-    } else if (isSignUp) {
-      toast({ title: "Check your email 📧", description: "We sent you a confirmation link bestie!" });
+      if (error) {
+        toast({ title: "Oops 💀", description: error.message, variant: "destructive" });
+      }
     }
   };
 
@@ -66,6 +83,21 @@ const Auth = () => {
               {isSignUp ? "Create an account to save your roasts" : "Sign in to continue getting roasted"}
             </p>
           </motion.div>
+
+          {/* Referral Badge */}
+          {referralCode && isSignUp && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mb-6 rounded-xl border border-primary/30 bg-primary/10 p-4 flex items-center gap-3"
+            >
+              <Gift className="h-6 w-6 text-primary flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium">You were invited! 🎁</p>
+                <p className="text-xs text-muted-foreground">Sign up to get +3 bonus roasts</p>
+              </div>
+            </motion.div>
+          )}
 
           <motion.form
             initial={{ opacity: 0, y: 20 }}
