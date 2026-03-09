@@ -1,63 +1,67 @@
 
 
-## Rezoome SaaS Audit — Rating & What's Missing
+## Open-Source Backend Stack for Rezoome
 
-### Current Rating: **3/10** as a money-making SaaS
+### Important Constraint
 
-**What you HAVE (frontend only):**
-- Landing page with Gen-Z branding
-- Upload page with PDF dropzone + tone picker
-- Results page with mock roast data
-- Pricing page (Free vs Pro at $5/mo)
+Lovable runs **frontend-only** (React/Vite). It cannot run Node.js, Python, or any backend server directly. Your two options are:
 
-**What's MISSING to actually make money:**
+1. **Use Supabase (via Lovable Cloud)** — Edge Functions (Deno) can call Gemini API directly. This is the easiest path within Lovable.
+2. **Self-host a backend separately** — Deploy your own backend elsewhere and call it from the Lovable frontend via API.
 
-### Critical Missing Pieces (Must-Have)
+### Recommended Open-Source Stack
 
-1. **No Backend / AI Integration** — The roast is hardcoded mock data. You need an actual AI edge function that parses the PDF and generates real roasts. Without this, the product does nothing.
+| Layer | Tool | Why |
+|-------|------|-----|
+| **LLM** | Google Gemini API (free tier: `gemini-2.0-flash`) | Free 15 RPM, generous limits, great for MVP |
+| **PDF Parsing** | `pdf-parse` (npm) or Gemini's native PDF input | Extract text from uploaded resumes |
+| **Auth** | Supabase Auth (free tier) | Email/password, OAuth, magic links — all free |
+| **Database** | Supabase PostgreSQL (free tier) | Store roasts, users, subscriptions |
+| **Storage** | Supabase Storage (free tier, 1GB) | Store uploaded PDFs |
+| **Payments** | LemonSqueezy or Stripe | LemonSqueezy is simpler for indie SaaS (handles tax) |
+| **Backend Functions** | Supabase Edge Functions (Deno) | Call Gemini API, process PDFs, enforce limits |
 
-2. **No Authentication** — No login/signup pages. Users can't create accounts, so you can't track usage, enforce free-tier limits, or sell Pro.
+### How It Works in Lovable
 
-3. **No Payment System (Stripe)** — Pricing page exists but clicking "Go Pro" just links to /upload. No Stripe checkout, no subscription management, no way to collect money.
+```text
+[User uploads PDF] 
+    → Frontend sends file to Supabase Storage
+    → Calls Edge Function "roast-resume"
+        → Edge Function reads PDF from Storage
+        → Sends text to Gemini API (google/gemini-2.0-flash)
+        → Returns roast + fix suggestions
+    → Frontend streams/displays result
+```
 
-4. **No Usage Limits / Gating** — Free tier says "1 roast per day" but there's no enforcement. Anyone can roast unlimited times. No paywall actually blocks anything.
+### Gemini API Integration
 
-5. **No Database** — No Supabase tables for storing roasts, user profiles, or subscription status. Everything is ephemeral.
+- **API**: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`
+- **Free tier**: 15 requests/minute, 1M tokens/day — enough for MVP
+- **Get API key**: https://aistudio.google.com/apikeys
+- **Store key**: As a Supabase secret (`GEMINI_API_KEY`), accessed in Edge Functions
 
-6. **No PDF Processing** — Upload page accepts a file but doesn't actually parse it. The text extraction step is missing entirely.
+### What to Build
 
-### Important Missing Pieces (Should-Have)
+1. **Enable Supabase** in Lovable (for auth, database, storage, and edge functions — all free tier)
+2. **Store Gemini API key** as a Supabase secret
+3. **Create Edge Function** `roast-resume` that calls Gemini API directly
+4. **Create DB tables**: `profiles`, `roasts`, `user_roles`
+5. **Add auth pages** (login/signup)
+6. **Wire up Upload page** to actually call the edge function
+7. **Add LemonSqueezy/Stripe** for $5/mo Pro tier
 
-7. **No User Dashboard** — Pro users have no roast history or way to revisit past results.
+### Cost Estimate (MVP)
 
-8. **No Email Capture / Waitlist** — If you're not ready to launch, you're losing potential users. No way to collect emails.
+| Service | Cost |
+|---------|------|
+| Supabase (free tier) | $0 |
+| Gemini API (free tier) | $0 |
+| LemonSqueezy | 5% + $0.50 per transaction |
+| **Total to launch** | **$0** |
 
-9. **No SEO / Meta Tags** — No Open Graph tags, no meta descriptions. Won't rank or look good when shared.
+### Next Step
 
-10. **No Social Sharing** — Users can't share their roast on Twitter/X. This is your #1 viral growth lever for a Gen-Z product.
+To proceed, we need to enable Supabase (Lovable Cloud) — this gives us the free auth, database, storage, and edge functions to host the Gemini API calls. You'll also need a Gemini API key from Google AI Studio.
 
-11. **No Analytics** — No way to track conversions, uploads, or user behavior.
-
-### Nice-to-Have
-
-12. **No Terms of Service / Privacy Policy** — Required for Stripe and legal compliance.
-13. **No Loading/Error States** — No error handling for failed uploads or API issues.
-14. **No Mobile Optimization Testing** — Untested on mobile devices.
-
----
-
-### Recommended Build Order to Get to a Real SaaS
-
-| Priority | Task | Impact |
-|----------|------|--------|
-| 1 | Set up Supabase (auth + database + storage) | Foundation |
-| 2 | Build login/signup pages | Users can register |
-| 3 | Create AI roast edge function | Core product works |
-| 4 | Integrate Stripe for Pro subscriptions | Revenue |
-| 5 | Add usage limits + paywall enforcement | Monetization |
-| 6 | Build Pro dashboard with roast history | Retention |
-| 7 | Add social sharing (Twitter/X card) | Growth |
-| 8 | Add SEO meta tags + OG images | Discovery |
-
-**With all 8 done, this becomes a 8/10 SaaS.** The branding and UI vibe are already strong — the gap is entirely backend + payments + real AI.
+Shall I proceed with enabling Supabase and setting this up?
 
