@@ -99,10 +99,9 @@ const Upload = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <motion.div
+            <div
               {...getRootProps()}
-              whileHover={{ scale: 1.01 }}
-              className={`relative rounded-2xl border-2 border-dashed p-12 text-center cursor-pointer transition-all duration-300 ${
+              className={`relative rounded-2xl border-2 border-dashed p-12 text-center cursor-pointer transition-all duration-300 hover:scale-[1.01] ${
                 isDragActive
                   ? "border-primary bg-primary/5 shadow-neon"
                   : file
