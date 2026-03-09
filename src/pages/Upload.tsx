@@ -42,6 +42,7 @@ const Upload = () => {
   const { toast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [tone, setTone] = useState<RoastTone>("balanced");
+  const [language, setLanguage] = useState<RoastLanguage>("english");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingIdx, setLoadingIdx] = useState(0);
 
