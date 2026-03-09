@@ -120,6 +120,7 @@ const Upload = () => {
           roastId: roast.id,
           fileName: file.name,
           tone,
+          language,
           roastText: result.roast_text,
           fixSuggestions: result.fix_suggestions,
           score: result.score,
