@@ -148,11 +148,30 @@ serve(async (req) => {
 
     const systemPrompt = languageTonePrompts[roast.language]?.[roast.tone] || languageTonePrompts.english.balanced;
 
+    // Language name mapping for explicit instructions
+    const languageNames: Record<string, string> = {
+      english: "English",
+      hindi: "Hindi (हिंदी)",
+      hinglish: "Hinglish (Hindi-English mix)",
+      spanish: "Spanish (Español)",
+      french: "French (Français)",
+      german: "German (Deutsch)",
+      japanese: "Japanese (日本語)",
+      portuguese: "Portuguese (Português)",
+    };
+
+    const targetLanguage = languageNames[roast.language] || "English";
+    
+    // Build language-specific instruction
+    const languageInstruction = roast.language === "english" 
+      ? "" 
+      : `\n\n🚨 CRITICAL LANGUAGE REQUIREMENT 🚨\nYou MUST write your ENTIRE response in ${targetLanguage}. Do NOT use English except for technical terms that have no translation. The roast, commentary, emojis captions, and fix suggestions text - ALL must be in ${targetLanguage}. This is non-negotiable.\n`;
+
     const geminiPayload = {
       contents: [
         {
           parts: [
-            { text: `${systemPrompt}\n\nPlease review this resume and provide:\n1. A detailed roast/review (use markdown formatting with **bold** for section headers)\n2. At the end, output a JSON block with fix suggestions in this exact format:\n\n---FIXES---\n[{"text": "fix description", "free": true/false}]\n\nMake the first 3 fixes free:true and the rest free:false. Provide 6-8 fix suggestions total.` },
+            { text: `${systemPrompt}${languageInstruction}\n\nReview this resume and provide:\n1. A detailed roast/review in ${targetLanguage} (use markdown formatting with **bold** for section headers)\n2. At the end, output a JSON block with fix suggestions in this exact format:\n\n---FIXES---\n[{"text": "fix description in ${targetLanguage}", "free": true/false}]\n\nMake the first 3 fixes free:true and the rest free:false. Provide 6-8 fix suggestions total. Remember: ALL text must be in ${targetLanguage}!` },
             {
               inline_data: {
                 mime_type: "application/pdf",
