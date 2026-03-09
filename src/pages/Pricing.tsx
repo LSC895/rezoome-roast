@@ -8,8 +8,8 @@ const plans = [
     name: "Free",
     price: "$0",
     period: "forever",
-    desc: "Dip your toes in the fire.",
-    cta: "Start Free",
+    desc: "Dip your toes in the fire bestie. 🫡",
+    cta: "Start Free ✨",
     href: "/upload",
     featured: false,
     features: [
