@@ -169,8 +169,8 @@ const Upload = () => {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
             </div>
+          </motion.div>
 
           {/* Tone Selector */}
           <motion.div
