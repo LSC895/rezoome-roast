@@ -58,6 +58,44 @@ serve(async (req) => {
     // Service client to read storage & update roast
     const serviceClient = createClient(supabaseUrl, serviceKey);
 
+    // --- Rate limiting ---
+    const { data: profile, error: profileError } = await serviceClient
+      .from("profiles")
+      .select("is_pro, roasts_today, last_roast_date, bonus_roasts")
+      .eq("user_id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      return new Response(JSON.stringify({ error: "Profile not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    if (!profile.is_pro) {
+      const today = new Date().toISOString().split("T")[0];
+      const roastsUsedToday = profile.last_roast_date === today ? profile.roasts_today : 0;
+      const dailyLimit = 1 + (profile.bonus_roasts || 0);
+
+      if (roastsUsedToday >= dailyLimit) {
+        return new Response(
+          JSON.stringify({
+            error: "Daily roast limit reached 💀",
+            limit: dailyLimit,
+            used: roastsUsedToday,
+            is_pro: false,
+          }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Increment counter
+      await serviceClient.from("profiles").update({
+        roasts_today: roastsUsedToday + 1,
+        last_roast_date: today,
+      }).eq("user_id", user.id);
+    }
+
     // Get roast record
     const { data: roast, error: roastError } = await serviceClient
       .from("roasts")

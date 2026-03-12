@@ -124,6 +124,25 @@ const Upload = () => {
     }, 2000);
 
     try {
+      // 0. Check rate limit client-side (optimistic)
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_pro, roasts_today, last_roast_date, bonus_roasts")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profile && !profile.is_pro) {
+        const today = new Date().toISOString().split("T")[0];
+        const usedToday = profile.last_roast_date === today ? profile.roasts_today : 0;
+        const limit = 1 + (profile.bonus_roasts || 0);
+        if (usedToday >= limit) {
+          clearInterval(interval);
+          setIsLoading(false);
+          setError(`Daily limit reached (${usedToday}/${limit}). Go Pro for unlimited roasts or refer friends for bonus roasts! 🔥`);
+          return;
+        }
+      }
+
       // 1. Upload PDF to storage
       const filePath = `${user.id}/${Date.now()}_${file.name}`;
       const { error: uploadError } = await supabase.storage
