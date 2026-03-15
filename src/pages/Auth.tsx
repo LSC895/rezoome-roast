@@ -42,7 +42,7 @@ const Auth = () => {
       if (error) {
         toast({ title: "Oops 💀", description: error.message, variant: "destructive" });
       } else {
-        toast({ title: "Check your email 📧", description: "We sent you a confirmation link bestie!" });
+        toast({ title: "You're in! 🔥", description: "Account created successfully!" });
       }
     } else {
       const { error } = await signIn(email, password);
