@@ -98,7 +98,7 @@ const Results = () => {
         scale: 2,
       });
       const link = document.createElement("a");
-      link.download = `rezoome-score-${state.score || 0}.png`;
+      link.download = `roastmycv-score-${state.score || 0}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
       toast({ title: "Downloaded! 📥", description: "Now flex it on socials" });
@@ -116,7 +116,7 @@ const Results = () => {
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
             <Flame className="h-7 w-7 text-primary" />
-            <span className="text-xl font-bold font-display tracking-tight">rezoome</span>
+            <span className="text-xl font-bold font-display tracking-tight">RoastMyCV</span>
           </Link>
           <div className="flex items-center gap-2">
             {user && (

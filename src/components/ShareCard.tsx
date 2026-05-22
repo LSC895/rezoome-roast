@@ -37,7 +37,7 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Flame className="h-6 w-6 text-orange-500" />
-            <span className="font-bold text-white text-lg">rezoome</span>
+            <span className="font-bold text-white text-lg">RoastMyCV</span>
           </div>
           <div className="flex gap-2">
             <span className="text-xs bg-zinc-800 text-zinc-300 px-2 py-1 rounded-full">
@@ -72,7 +72,7 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
 
         {/* Footer */}
         <div className="flex items-center justify-between text-xs text-zinc-500">
-          <span>Get roasted at rezoome.app</span>
+          <span>Get roasted at roastmycv.app</span>
           <span>🔥 #GetRoasted</span>
         </div>
       </div>

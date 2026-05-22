@@ -71,7 +71,7 @@ const Index = () => {
             <motion.div whileHover={{ rotate: [0, -15, 15, 0] }} transition={{ duration: 0.4 }}>
               <Flame className="h-7 w-7 text-primary" />
             </motion.div>
-            <span className="text-xl font-bold font-display tracking-tight">rezoome</span>
+            <span className="text-xl font-bold font-display tracking-tight">RoastMyCV</span>
             <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-mono">beta</span>
           </Link>
           <div className="flex items-center gap-4">
@@ -321,8 +321,8 @@ const Index = () => {
           <div className="space-y-4">
             {[
               { user: "@recruiterguy", text: "if i see 'proficient in microsoft word' one more time i'm gonna lose it 😭", likes: "12.4K" },
-              { user: "@jobseeker404", text: "just got my resume roasted by rezoome and i've never been more attacked AND motivated at the same time", likes: "8.9K" },
-              { user: "@hiringmanager", text: "whoever built rezoome deserves a raise. i wish every candidate used this before applying 🙏", likes: "23.1K" },
+              { user: "@jobseeker404", text: "just got my resume roasted by RoastMyCV and i've never been more attacked AND motivated at the same time", likes: "8.9K" },
+              { user: "@hiringmanager", text: "whoever built RoastMyCV deserves a raise. i wish every candidate used this before applying 🙏", likes: "23.1K" },
             ].map((tweet, i) => (
               <motion.div
                 key={i}
@@ -376,13 +376,13 @@ const Index = () => {
         <div className="container flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Flame className="h-4 w-4 text-primary" />
-            <span className="font-display font-bold text-foreground">rezoome</span>
+            <span className="font-display font-bold text-foreground">RoastMyCV</span>
           </div>
           <div className="flex gap-6">
             <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
             <Link to="/upload" className="hover:text-foreground transition-colors">Upload</Link>
           </div>
-          <p className="font-mono text-xs">© 2026 rezoome. all rights roasted. 🫡</p>
+          <p className="font-mono text-xs">© 2026 RoastMyCV. all rights roasted. 🫡</p>
         </div>
       </footer>
     </div>

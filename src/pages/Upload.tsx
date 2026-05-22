@@ -15,11 +15,6 @@ const languages: { id: RoastLanguage; label: string; emoji: string }[] = [
   { id: "english", label: "English", emoji: "🇬🇧" },
   { id: "hindi", label: "हिंदी", emoji: "🇮🇳" },
   { id: "hinglish", label: "Hinglish", emoji: "🔥" },
-  { id: "spanish", label: "Español", emoji: "🇪🇸" },
-  { id: "french", label: "Français", emoji: "🇫🇷" },
-  { id: "german", label: "Deutsch", emoji: "🇩🇪" },
-  { id: "japanese", label: "日本語", emoji: "🇯🇵" },
-  { id: "portuguese", label: "Português", emoji: "🇧🇷" },
 ];
 
 const tones: { id: RoastTone; label: string; emoji: string; desc: string }[] = [
@@ -100,7 +95,11 @@ const Upload = () => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "application/pdf": [".pdf"] },
+    accept: { 
+      "application/pdf": [".pdf"],
+      "application/msword": [".doc"],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"]
+    },
     maxFiles: 1,
     maxSize: 10 * 1024 * 1024,
   });
@@ -221,7 +220,7 @@ const Upload = () => {
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
             <Flame className="h-7 w-7 text-primary" />
-            <span className="text-xl font-bold font-display tracking-tight">rezoome</span>
+            <span className="text-xl font-bold font-display tracking-tight">RoastMyCV</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/pricing">
@@ -332,9 +331,9 @@ const Upload = () => {
                     </motion.div>
                     <div>
                       <p className="font-medium text-foreground">
-                        {isDragActive ? "Drop it like it's hot 🔥" : "Drag & drop your resume PDF"}
+                        {isDragActive ? "Drop it like it's hot 🔥" : "Drag & drop your resume or cover letter"}
                       </p>
-                      <p className="text-sm text-muted-foreground mt-1">or click to browse • Max 10MB • PDF only bestie</p>
+                      <p className="text-sm text-muted-foreground mt-1">or click to browse • PDF, DOC, DOCX • Max 10MB</p>
                     </div>
                   </motion.div>
                 )}

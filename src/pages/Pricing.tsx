@@ -48,7 +48,7 @@ const Pricing = () => {
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
             <Flame className="h-7 w-7 text-primary" />
-            <span className="text-xl font-bold font-display tracking-tight">rezoome</span>
+            <span className="text-xl font-bold font-display tracking-tight">RoastMyCV</span>
           </Link>
           <Link to="/upload">
             <Button size="sm" className="bg-gradient-fire text-primary-foreground shadow-neon hover:opacity-90">

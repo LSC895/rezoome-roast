@@ -24,7 +24,7 @@ const Auth = () => {
     // If referral code present, default to signup and store it
     if (referralCode) {
       setIsSignUp(true);
-      localStorage.setItem("rezoome_referral", referralCode);
+      localStorage.setItem("roastmycv_referral", referralCode);
     }
   }, [referralCode]);
 
@@ -60,7 +60,7 @@ const Auth = () => {
         <div className="container flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
             <Flame className="h-7 w-7 text-primary" />
-            <span className="text-xl font-bold font-display tracking-tight">rezoome</span>
+            <span className="text-xl font-bold font-display tracking-tight">RoastMyCV</span>
           </Link>
         </div>
       </nav>

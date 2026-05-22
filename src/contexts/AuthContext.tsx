@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Process referral when user logs in
   const processStoredReferral = async (userId: string) => {
-    const referralCode = localStorage.getItem("rezoome_referral");
+    const referralCode = localStorage.getItem("roastmycv_referral");
     if (!referralCode) return;
 
     try {
